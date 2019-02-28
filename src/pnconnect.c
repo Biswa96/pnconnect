@@ -2,6 +2,8 @@
 #include "pnconnect.h"
 #include "Helpers.h"
 #include "Log.h"
+#include <Npapi.h>
+#include <stdio.h>
 
 int
 WINAPI
@@ -21,7 +23,44 @@ main(void)
         LogStatus(Status, L"StartRedirector");
     }
 
+    ULONG res = 0;
+    HANDLE hEnum = NULL;
+    NETRESOURCEW NetResource;
+
+    RtlZeroMemory(&NetResource, sizeof NetResource);
+    NetResource.lpRemoteName = L"\\\\wsl$";
+
+    res = NPOpenEnum(RESOURCE_GLOBALNET,
+                     RESOURCETYPE_DISK,
+                     RESOURCEUSAGE_CONNECTABLE,
+                     &NetResource,
+                     &hEnum);
+
+    res = CoInitializeEx(0, COINIT_MULTITHREADED);
+    res = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT,
+                               SecurityDelegation, NULL, EOAC_STATIC_CLOAKING, NULL);
+
+    ULONG Count = INFINITE, BufferSize = 0;
+    LPNETRESOURCEW Buffer = NULL;
+    HANDLE HeapHandle = GetProcessHeap();
+    Buffer = RtlAllocateHeap(HeapHandle, HEAP_ZERO_MEMORY, sizeof (char));
+
+    res = NPEnumResource(hEnum, &Count, Buffer, &BufferSize);
+    if (res == ERROR_MORE_DATA)
+    {
+        PVOID Temp = NULL;
+        Temp = RtlReAllocateHeap(HeapHandle, HEAP_ZERO_MEMORY, Buffer, BufferSize);
+        Buffer = Temp;
+        Temp = NULL;
+
+        res = NPEnumResource(hEnum, &Count, Buffer, &BufferSize);
+    }
+    else
+        LogResult(res, L"NPEnumResource");
+
     // Cleanup
     if(hpnDevice)
         NtClose(hpnDevice);
+    if (Buffer)
+        RtlFreeHeap(HeapHandle, 0, Buffer);
 }

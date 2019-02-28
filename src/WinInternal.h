@@ -1,11 +1,7 @@
 #ifndef WININTERNAL_H
 #define WININTERNAL_H
 
-#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#undef WIN32_LEAN_AND_MEAN
-
-typedef long NTSTATUS;
 
 #ifndef NT_SUCCESS
 #define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
@@ -70,6 +66,25 @@ NtDeviceIoControlFile(HANDLE FileHandle,
                       ULONG InputBufferLength,
                       PVOID OutputBuffer,
                       ULONG OutputBufferLength);
+
+PVOID
+NTAPI
+RtlAllocateHeap(PVOID HeapHandle,
+                ULONG Flags,
+                SIZE_T Size);
+
+BOOLEAN
+NTAPI
+RtlFreeHeap(HANDLE HeapHandle,
+            ULONG Flags,
+            PVOID P);
+
+PVOID
+NTAPI
+RtlReAllocateHeap(HANDLE Heap,
+                  ULONG Flags,
+                  PVOID Ptr,
+                  SIZE_T Size);
 
 NTSTATUS
 NTAPI

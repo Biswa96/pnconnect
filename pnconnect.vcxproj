@@ -51,7 +51,7 @@
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ntdll.lib</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ole32.lib;$(SolutionDir)lib\p9np.lib</AdditionalDependencies>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
     </Link>
