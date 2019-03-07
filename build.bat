@@ -10,7 +10,7 @@ set BINDIR=bin
 set SRCDIR=src
 set CFLAGS=/c /nologo /O1 /MD /W4 /Fo%BINDIR%\\
 set LFLAGS=/nologo /MACHINE:X64
-set LIBS=Ntdll.lib
+set LIBS=Ntdll.lib Ole32.lib lib\p9np.lib
 
 :: Disable MSVC warnings
 set CCOPT=/wd"4201" /wd"4214"

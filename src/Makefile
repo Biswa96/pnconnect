@@ -4,7 +4,7 @@ NAME := pnconnect
 BINDIR = ../bin
 CC = gcc
 CFLAGS := -ggdb -m64 -Wall -Wextra
-LIBS := -lNtdll
+LIBS := -lNtdll -lOle32 -lp9np -L"../lib"
 SOURCES := $(wildcard *.c)
 OBJECTS := $(SOURCES:.c=.obj)
 BINS := $(patsubst %.obj,$(BINDIR)/%.obj,$(OBJECTS))

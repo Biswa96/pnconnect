@@ -5,11 +5,14 @@ NTAPI
 OpenDevice(PHANDLE DeviceHandle)
 {
     NTSTATUS Status;
-    UNICODE_STRING ObjectName = { 0 };
-    OBJECT_ATTRIBUTES ObjectAttributes = { 0 };
+    UNICODE_STRING ObjectName;
+    OBJECT_ATTRIBUTES ObjectAttributes;
     IO_STATUS_BLOCK IoStatusBlock;
 
+    RtlZeroMemory(&ObjectName, sizeof ObjectName);
     Status = RtlInitUnicodeStringEx(&ObjectName, L"\\Device\\P9Rdr");
+
+    RtlZeroMemory(&ObjectAttributes, sizeof ObjectAttributes);
     ObjectAttributes.Length = sizeof ObjectAttributes;
     ObjectAttributes.Attributes = OBJ_CASE_INSENSITIVE;
     ObjectAttributes.ObjectName = &ObjectName;

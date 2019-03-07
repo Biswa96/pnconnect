@@ -1,6 +1,19 @@
 # pnconnect
 
-Experiments with 9P protocol file server in Windows 10 for fun
+Experiments with 9P file server in Windows 10 for fun
+
+## How to build
+
+Clone this repository. Open the solution (.sln) or project (.vcxproj) file
+in Visual Studio and build it. Alternatively, run Visual Studio developer
+command prompt, go to the cloned folder and run this command: `msbuild.exe`.
+You can also build with mingw-w64 toolchain using `make` command. 
+
+### Build p9np export libraries:
+
+1. Generate DEF file: `gendef /c/Windows/System32/p9np.dll` 
+2. For MSVC: `lib /DEF:p9np.def /MACHINE:X64` 
+3. For GCC: `dlltool -D /c/Windows/System32/p9np.dll -d p9np.def -l libp9np.a` 
 
 ## License
 

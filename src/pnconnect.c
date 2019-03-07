@@ -54,13 +54,27 @@ main(void)
         Temp = NULL;
 
         res = NPEnumResource(hEnum, &Count, Buffer, &BufferSize);
+        if (res == ERROR_SUCCESS)
+        {
+            wprintf(L"\n Running Distributions: %lu\n", Count);
+
+            for (ULONG i = 0; i < Count; i++)
+            {
+                wprintf(L" Scope: %lu\n Type: %lu\n DisplayType: %lu\n"
+                        L" Usage: %lu\n Remote Name: %ls\n Provider: %ls\n",
+                        Buffer->dwScope, Buffer->dwType, Buffer->dwDisplayType,
+                        Buffer->dwUsage, Buffer->lpRemoteName, Buffer->lpProvider);
+            }
+        }
     }
     else
         LogResult(res, L"NPEnumResource");
 
     // Cleanup
-    if(hpnDevice)
-        NtClose(hpnDevice);
     if (Buffer)
         RtlFreeHeap(HeapHandle, 0, Buffer);
+    if (hEnum)
+        NPCloseEnum(hEnum);
+    if(hpnDevice)
+        NtClose(hpnDevice);
 }
