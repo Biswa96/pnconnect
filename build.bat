@@ -22,7 +22,7 @@ cl.exe %CFLAGS% %CCOPT% %SRCDIR%\*.c
 link.exe %LFLAGS% %LIBS% %BINDIR%\*.obj /OUT:%BINDIR%\%NAME%.exe
 
 dir /B %BINDIR%\*.exe
-pause
+:: pause
 exit /b
 
 ::END#
