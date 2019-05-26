@@ -53,17 +53,88 @@ main(void)
         Buffer = Temp;
         Temp = NULL;
 
-        res = NPEnumResource(hEnum, &Count, Buffer, &BufferSize);
-        if (res == ERROR_SUCCESS)
-        {
-            wprintf(L"\n Running Distributions: %lu\n", Count);
-
-            for (ULONG i = 0; i < Count; i++)
+        wprintf(L"\n");
+        while(TRUE){
+            res = NPEnumResource(hEnum, &Count, Buffer, &BufferSize);
+            if (res == ERROR_SUCCESS)
             {
-                wprintf(L" Scope: %lu\n Type: %lu\n DisplayType: %lu\n"
-                        L" Usage: %lu\n Remote Name: %ls\n Provider: %ls\n",
-                        Buffer->dwScope, Buffer->dwType, Buffer->dwDisplayType,
-                        Buffer->dwUsage, Buffer->lpRemoteName, Buffer->lpProvider);
+                for (ULONG i = 0; i < Count; i++)
+                {
+                    wprintf(L" Scope: %lu ", Buffer->dwScope);
+                    switch(Buffer->dwScope){
+                        case RESOURCE_CONNECTED:
+                            wprintf(L"RESOURCE_CONNECTED ");
+                            break;
+                        case RESOURCE_GLOBALNET:
+                            wprintf(L"RESOURCE_GLOBALNET ");
+                            break;
+                        case RESOURCE_CONTEXT:
+                            wprintf(L"RESOURCE_CONTEXT ");
+                            break;
+                        default:
+                            wprintf(L"UNNOWN VALUE ");
+                            break;
+                    }
+
+                    wprintf(L"\n Type:  %lu ", Buffer->dwType);
+                    switch(Buffer->dwType){
+                        case RESOURCETYPE_DISK:
+                            wprintf(L"RESOURCETYPE_DISK ");
+                            break;
+                        case RESOURCETYPE_PRINT:
+                            wprintf(L"RESOURCETYPE_PRINT ");
+                            break;
+                        case RESOURCETYPE_ANY:
+                            wprintf(L"RESOURCETYPE_ANY ");
+                            break;
+                        default:
+                            wprintf(L"UNNOWN VALUE ");
+                            break;
+                    }
+
+                    wprintf(L"\n DisplayType: %lu ", Buffer->dwDisplayType);
+                    switch(Buffer->dwType){
+                        case RESOURCEDISPLAYTYPE_NETWORK:
+                            wprintf(L"RESOURCEDISPLAYTYPE_NETWORK ");
+                            break;
+                        case RESOURCEDISPLAYTYPE_DOMAIN:
+                            wprintf(L"RESOURCEDISPLAYTYPE_DOMAIN ");
+                            break;
+                        case RESOURCEDISPLAYTYPE_SERVER:
+                            wprintf(L"RESOURCEDISPLAYTYPE_SERVER ");
+                            break;
+                        case RESOURCEDISPLAYTYPE_SHARE:
+                            wprintf(L"RESOURCEDISPLAYTYPE_SHARE ");
+                            break;
+                        case RESOURCEDISPLAYTYPE_DIRECTORY:
+                            wprintf(L"RESOURCEDISPLAYTYPE_DIRECTORY ");
+                            break;
+                        case RESOURCEDISPLAYTYPE_GENERIC:
+                            wprintf(L"RESOURCEDISPLAYTYPE_GENERIC ");
+                            break;
+                        default:
+                            wprintf(L"UNNOWN VALUE ");
+                            break;
+                    }
+
+                    wprintf(L"\n Usage: %lu ", Buffer->dwUsage);
+                    if(Buffer->dwUsage & RESOURCEUSAGE_CONNECTABLE ){
+                        wprintf(L"RESOURCEUSAGE_CONNECTABLE ");
+                    }
+                    if(Buffer->dwUsage & RESOURCEUSAGE_CONTAINER ){
+                        wprintf(L"RESOURCEUSAGE_CONTAINER ");
+                    }
+
+                    wprintf(L"\n Local Name: %ls\n", Buffer->lpLocalName);
+                    wprintf(L" Remote Name: %ls\n", Buffer->lpRemoteName);
+                    wprintf(L" Comment: %ls\n", Buffer->lpComment);
+                    wprintf(L" Provider: %ls\n", Buffer->lpProvider);
+
+                    wprintf(L"\n");
+                    Buffer += (sizeof(struct _NETRESOURCEA));
+                }
+            }else{
+                break;
             }
         }
     }
