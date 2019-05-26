@@ -60,6 +60,7 @@ main(void)
             {
                 for (ULONG i = 0; i < Count; i++)
                 {
+                    // info from https://docs.microsoft.com/en-us/windows/desktop/api/winnetwk/ns-winnetwk-_netresourcew
                     wprintf(L" Scope: %lu ", Buffer->dwScope);
                     switch(Buffer->dwScope){
                         case RESOURCE_CONNECTED:
@@ -118,11 +119,13 @@ main(void)
                     }
 
                     wprintf(L"\n Usage: %lu ", Buffer->dwUsage);
-                    if(Buffer->dwUsage & RESOURCEUSAGE_CONNECTABLE ){
-                        wprintf(L"RESOURCEUSAGE_CONNECTABLE ");
-                    }
-                    if(Buffer->dwUsage & RESOURCEUSAGE_CONTAINER ){
-                        wprintf(L"RESOURCEUSAGE_CONTAINER ");
+                    if(Buffer->dwScope == RESOURCE_GLOBALNET) {
+                        if(Buffer->dwUsage & RESOURCEUSAGE_CONNECTABLE ){
+                            wprintf(L"RESOURCEUSAGE_CONNECTABLE ");
+                        }
+                        if(Buffer->dwUsage & RESOURCEUSAGE_CONTAINER ){
+                            wprintf(L"RESOURCEUSAGE_CONTAINER ");
+                        }
                     }
 
                     wprintf(L"\n Local Name: %ls\n", Buffer->lpLocalName);
@@ -131,7 +134,7 @@ main(void)
                     wprintf(L" Provider: %ls\n", Buffer->lpProvider);
 
                     wprintf(L"\n");
-                    Buffer += (sizeof(struct _NETRESOURCEA));
+                    Buffer += (sizeof(struct _NETRESOURCEW));
                 }
             }else{
                 break;
