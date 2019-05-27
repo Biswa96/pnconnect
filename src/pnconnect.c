@@ -35,6 +35,7 @@ main(void)
                      RESOURCEUSAGE_CONNECTABLE,
                      &NetResource,
                      &hEnum);
+    LogResult(res, L"NPOpenEnum");
 
     res = CoInitializeEx(0, COINIT_MULTITHREADED);
     res = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT,
@@ -46,7 +47,7 @@ main(void)
     Buffer = RtlAllocateHeap(HeapHandle, HEAP_ZERO_MEMORY, sizeof (char));
 
     res = NPEnumResource(hEnum, &Count, Buffer, &BufferSize);
-    if (res == ERROR_MORE_DATA)
+    if (res == WN_MORE_DATA)
     {
         PVOID Temp = NULL;
         Temp = RtlReAllocateHeap(HeapHandle, HEAP_ZERO_MEMORY, Buffer, BufferSize);
@@ -54,91 +55,97 @@ main(void)
         Temp = NULL;
 
         wprintf(L"\n");
-        while(TRUE){
+        while (TRUE)
+        {
             res = NPEnumResource(hEnum, &Count, Buffer, &BufferSize);
-            if (res == ERROR_SUCCESS)
+            if (res == WN_SUCCESS)
             {
+                PWSTR Output = NULL;
+
                 for (ULONG i = 0; i < Count; i++)
                 {
                     // info from https://docs.microsoft.com/en-us/windows/desktop/api/winnetwk/ns-winnetwk-_netresourcew
-                    wprintf(L" Scope: %lu ", Buffer->dwScope);
-                    switch(Buffer->dwScope){
+
+                    switch (Buffer->dwScope)
+                    {
                         case RESOURCE_CONNECTED:
-                            wprintf(L"RESOURCE_CONNECTED ");
+                            Output = L"RESOURCE_CONNECTED";
                             break;
                         case RESOURCE_GLOBALNET:
-                            wprintf(L"RESOURCE_GLOBALNET ");
+                            Output = L"RESOURCE_GLOBALNET";
                             break;
                         case RESOURCE_CONTEXT:
-                            wprintf(L"RESOURCE_CONTEXT ");
+                            Output = L"RESOURCE_CONTEXT";
                             break;
                         default:
-                            wprintf(L"UNNOWN VALUE ");
+                            Output = L"RESOURCE_UNKNOWN";
                             break;
                     }
+                    wprintf(L"Scope       : %ls (%lu) \n", Output, Buffer->dwScope);
 
-                    wprintf(L"\n Type:  %lu ", Buffer->dwType);
-                    switch(Buffer->dwType){
+                    switch (Buffer->dwType)
+                    {
                         case RESOURCETYPE_DISK:
-                            wprintf(L"RESOURCETYPE_DISK ");
+                            Output = L"RESOURCETYPE_DISK";
                             break;
                         case RESOURCETYPE_PRINT:
-                            wprintf(L"RESOURCETYPE_PRINT ");
+                            Output = L"RESOURCETYPE_PRINT";
                             break;
                         case RESOURCETYPE_ANY:
-                            wprintf(L"RESOURCETYPE_ANY ");
+                            Output = L"RESOURCETYPE_ANY";
                             break;
                         default:
-                            wprintf(L"UNNOWN VALUE ");
+                            Output = L"RESOURCETYPE_UNKNOWN";
                             break;
                     }
+                    wprintf(L"Type        : %ls (%lu) \n", Output, Buffer->dwType);
 
-                    wprintf(L"\n DisplayType: %lu ", Buffer->dwDisplayType);
-                    switch(Buffer->dwType){
+                    switch (Buffer->dwDisplayType)
+                    {
                         case RESOURCEDISPLAYTYPE_NETWORK:
-                            wprintf(L"RESOURCEDISPLAYTYPE_NETWORK ");
+                            Output = L"RESOURCEDISPLAYTYPE_NETWORK";
                             break;
                         case RESOURCEDISPLAYTYPE_DOMAIN:
-                            wprintf(L"RESOURCEDISPLAYTYPE_DOMAIN ");
+                            Output = L"RESOURCEDISPLAYTYPE_DOMAIN";
                             break;
                         case RESOURCEDISPLAYTYPE_SERVER:
-                            wprintf(L"RESOURCEDISPLAYTYPE_SERVER ");
+                            Output = L"RESOURCEDISPLAYTYPE_SERVER";
                             break;
                         case RESOURCEDISPLAYTYPE_SHARE:
-                            wprintf(L"RESOURCEDISPLAYTYPE_SHARE ");
+                            Output = L"RESOURCEDISPLAYTYPE_SHARE";
                             break;
                         case RESOURCEDISPLAYTYPE_DIRECTORY:
-                            wprintf(L"RESOURCEDISPLAYTYPE_DIRECTORY ");
+                            Output = L"RESOURCEDISPLAYTYPE_DIRECTORY";
                             break;
                         case RESOURCEDISPLAYTYPE_GENERIC:
-                            wprintf(L"RESOURCEDISPLAYTYPE_GENERIC ");
+                            Output = L"RESOURCEDISPLAYTYPE_GENERIC";
                             break;
                         default:
-                            wprintf(L"UNNOWN VALUE ");
+                            Output = L"RESOURCEDISPLAYTYPE_UNKNOWN";
                             break;
                     }
+                    wprintf(L"DisplayType : %ls (%lu) \n", Output, Buffer->dwDisplayType);
 
-                    wprintf(L"\n Usage: %lu ", Buffer->dwUsage);
-                    if(Buffer->dwScope == RESOURCE_GLOBALNET) {
-                        if(Buffer->dwUsage & RESOURCEUSAGE_CONNECTABLE ){
-                            wprintf(L"RESOURCEUSAGE_CONNECTABLE ");
-                        }
-                        if(Buffer->dwUsage & RESOURCEUSAGE_CONTAINER ){
-                            wprintf(L"RESOURCEUSAGE_CONTAINER ");
-                        }
+                    if (Buffer->dwScope == RESOURCE_GLOBALNET)
+                    {
+                        if (Buffer->dwUsage & RESOURCEUSAGE_CONNECTABLE)
+                            Output = L"RESOURCEUSAGE_CONNECTABLE";
+                        if (Buffer->dwUsage & RESOURCEUSAGE_CONTAINER)
+                            Output = L"RESOURCEUSAGE_CONTAINER";
+                        wprintf(L"Usage       : %ls (%lu) \n", Output, Buffer->dwUsage);
                     }
 
-                    wprintf(L"\n Local Name: %ls\n", Buffer->lpLocalName);
-                    wprintf(L" Remote Name: %ls\n", Buffer->lpRemoteName);
-                    wprintf(L" Comment: %ls\n", Buffer->lpComment);
-                    wprintf(L" Provider: %ls\n", Buffer->lpProvider);
+                    wprintf(L"Local Name  : %ls \n", Buffer->lpLocalName);
+                    wprintf(L"Remote Name : %ls \n", Buffer->lpRemoteName);
+                    wprintf(L"Comment     : %ls \n", Buffer->lpComment);
+                    wprintf(L"Provider    : %ls \n", Buffer->lpProvider);
 
                     wprintf(L"\n");
-                    Buffer += (sizeof(struct _NETRESOURCEW));
+                    Buffer += sizeof(*Buffer);
                 }
-            }else{
-                break;
             }
+            else
+                break;
         }
     }
     else
@@ -151,4 +158,5 @@ main(void)
         NPCloseEnum(hEnum);
     if(hpnDevice)
         NtClose(hpnDevice);
+    CoUninitialize();
 }

@@ -4,7 +4,7 @@
 #include <Windows.h>
 
 #ifndef NT_SUCCESS
-#define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
+#define NT_SUCCESS(Status) (Status >= 0)
 #endif
 
 // Flags from winternl.h
@@ -32,69 +32,91 @@ typedef struct _IO_STATUS_BLOCK {
     union {
         NTSTATUS Status;
         PVOID Pointer;
-    };
+    } u;
     ULONG_PTR Information;
 } IO_STATUS_BLOCK, *PIO_STATUS_BLOCK;
 
+typedef
+VOID
+(NTAPI* PIO_APC_ROUTINE) (
+    _In_ PVOID ApcContext,
+    _In_ PIO_STATUS_BLOCK IoStatusBlock,
+    _In_ ULONG Reserved);
+
+NTSYSCALLAPI
 NTSTATUS
 NTAPI
-NtCreateFile(PHANDLE FileHandle,
-             ACCESS_MASK DesiredAccess,
-             POBJECT_ATTRIBUTES ObjectAttributes,
-             PIO_STATUS_BLOCK IoStatusBlock,
-             PLARGE_INTEGER AllocationSize,
-             ULONG FileAttributes,
-             ULONG ShareAccess,
-             ULONG CreateDisposition,
-             ULONG CreateOptions,
-             PVOID EaBuffer,
-             ULONG EaLength);
+NtClose(
+    _In_ HANDLE Handle);
 
+NTSYSCALLAPI
 NTSTATUS
 NTAPI
-NtClose(HANDLE Handle);
+NtCreateFile(
+    _Out_ PHANDLE FileHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_ POBJECT_ATTRIBUTES ObjectAttributes,
+    _Out_ PIO_STATUS_BLOCK IoStatusBlock,
+    _In_opt_ PLARGE_INTEGER AllocationSize,
+    _In_ ULONG FileAttributes,
+    _In_ ULONG ShareAccess,
+    _In_ ULONG CreateDisposition,
+    _In_ ULONG CreateOptions,
+    _In_reads_bytes_opt_(EaLength) PVOID EaBuffer,
+    _In_ ULONG EaLength);
 
+NTSYSCALLAPI
 NTSTATUS
 NTAPI
-NtDeviceIoControlFile(HANDLE FileHandle,
-                      HANDLE Event,
-                      PVOID ApcRoutine,
-                      PVOID ApcContext,
-                      PIO_STATUS_BLOCK IoStatusBlock,
-                      ULONG IoControlCode,
-                      PVOID InputBuffer,
-                      ULONG InputBufferLength,
-                      PVOID OutputBuffer,
-                      ULONG OutputBufferLength);
+NtDeviceIoControlFile(
+    _In_ HANDLE FileHandle,
+    _In_opt_ HANDLE Event,
+    _In_opt_ PIO_APC_ROUTINE ApcRoutine,
+    _In_opt_ PVOID ApcContext,
+    _Out_ PIO_STATUS_BLOCK IoStatusBlock,
+    _In_ ULONG IoControlCode,
+    _In_reads_bytes_opt_(InputBufferLength) PVOID InputBuffer,
+    _In_ ULONG InputBufferLength,
+    _Out_writes_bytes_opt_(OutputBufferLength) PVOID OutputBuffer,
+    _In_ ULONG OutputBufferLength);
 
+NTSYSAPI
 PVOID
 NTAPI
-RtlAllocateHeap(PVOID HeapHandle,
-                ULONG Flags,
-                SIZE_T Size);
+RtlAllocateHeap(
+    _In_ PVOID HeapHandle,
+    _In_opt_ ULONG Flags,
+    _In_ SIZE_T Size);
 
+NTSYSAPI
 BOOLEAN
 NTAPI
-RtlFreeHeap(HANDLE HeapHandle,
-            ULONG Flags,
-            PVOID P);
+RtlFreeHeap(
+    _In_ PVOID HeapHandle,
+    _In_opt_ ULONG Flags,
+    _In_ PVOID BaseAddress);
 
-PVOID
-NTAPI
-RtlReAllocateHeap(HANDLE Heap,
-                  ULONG Flags,
-                  PVOID Ptr,
-                  SIZE_T Size);
-
+NTSYSAPI
 NTSTATUS
 NTAPI
-RtlInitUnicodeStringEx(PUNICODE_STRING DestinationString,
-                       PWSTR SourceString);
+RtlInitUnicodeStringEx(
+    _Out_ PUNICODE_STRING DestinationString,
+    _In_opt_ PWSTR SourceString);
+
+NTSYSAPI
+PVOID
+NTAPI
+RtlReAllocateHeap(
+    _In_ PVOID HeapHandle,
+    _In_ ULONG Flags,
+    _In_ PVOID BaseAddress,
+    _In_ SIZE_T Size);
 
 #undef RtlZeroMemory
-void
+VOID
 NTAPI
-RtlZeroMemory(PVOID Destination,
-              SIZE_T Length);
+RtlZeroMemory(
+    _In_ PVOID Destination,
+    _In_ SIZE_T Length);
 
 #endif // WININTERNAL_H
