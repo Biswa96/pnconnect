@@ -151,9 +151,7 @@ void WINAPI ListConnections(void)
                     wprintf(L"Remote Name : %ls \n", Buffer->lpRemoteName);
                     wprintf(L"Comment     : %ls \n", Buffer->lpComment);
                     wprintf(L"Provider    : %ls \n", Buffer->lpProvider);
-
                     wprintf(L"\n");
-                    Buffer += sizeof(*Buffer);
                 }
             }
             else
