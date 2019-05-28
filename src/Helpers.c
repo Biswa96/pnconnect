@@ -1,4 +1,6 @@
-#include "WinInternal.h"
+#include <Windows.h>
+#include <winternl.h>
+#include "ntapi.h"
 
 NTSTATUS
 NTAPI
@@ -10,7 +12,7 @@ OpenDevice(PHANDLE DeviceHandle)
     IO_STATUS_BLOCK IoStatusBlock;
 
     RtlZeroMemory(&ObjectName, sizeof ObjectName);
-    Status = RtlInitUnicodeStringEx(&ObjectName, L"\\Device\\P9Rdr");
+    RtlInitUnicodeString(&ObjectName, L"\\Device\\P9Rdr");
 
     RtlZeroMemory(&ObjectAttributes, sizeof ObjectAttributes);
     ObjectAttributes.Length = sizeof ObjectAttributes;
@@ -28,7 +30,6 @@ OpenDevice(PHANDLE DeviceHandle)
                           0,
                           NULL,
                           0);
-
     return Status;
 }
 
@@ -54,9 +55,7 @@ DeviceIoControlNoThrow(HANDLE DeviceHandle,
                                    0);
     if (Status == STATUS_PENDING)
         WaitForSingleObjectEx(hEvent, INFINITE, FALSE);
-
     if(hEvent)
         NtClose(hEvent);
-
     return Status;
 }

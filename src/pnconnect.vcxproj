@@ -37,19 +37,21 @@
       <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ntdll.lib;ole32.lib;$(SolutionDir)lib\p9np.lib</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;ntdll.lib;ole32.lib;$(SolutionDir)lib\p9np.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Helpers.c" />
     <ClCompile Include="Log.c" />
+    <ClCompile Include="main.c" />
     <ClCompile Include="pnconnect.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="pnconnect.h" />
-    <ClInclude Include="WinInternal.h" />
+    <ClInclude Include="pnioctls.h" />
+    <ClInclude Include="ntapi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

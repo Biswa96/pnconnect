@@ -2,8 +2,8 @@
 
 NAME := pnconnect
 BINDIR = ../bin
-CFLAGS := -O2 -std=c99 -m64 -Wall -Wextra
-LIBS := -lNtdll -lOle32 -lp9np -L"../lib"
+CFLAGS := -O2 -std=c99 -m64 -Wall -Wextra -fstack-check 
+LIBS := -lAdvapi32 -lNtdll -lOle32 -lp9np -L"../lib"
 SOURCES := $(wildcard *.c)
 OBJECTS := $(SOURCES:.c=.obj)
 BINS := $(patsubst %.obj,$(BINDIR)/%.obj,$(OBJECTS))

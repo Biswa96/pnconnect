@@ -8,9 +8,9 @@ where cl.exe link.exe
 set NAME=pnconnect
 set BINDIR=bin
 set SRCDIR=src
-set CFLAGS=/c /nologo /O1 /MD /W4 /Fo%BINDIR%\\
+set CFLAGS=/c /nologo /O2 /MD /W4 /Fo%BINDIR%\\
 set LFLAGS=/nologo /MACHINE:X64
-set LIBS=Ntdll.lib Ole32.lib lib\p9np.lib
+set LIBS=Advapi32.lib Ntdll.lib Ole32.lib lib\p9np.lib
 
 ::Build
 rd /s /q %BINDIR%

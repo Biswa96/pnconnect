@@ -1,28 +1,44 @@
-#include "WinInternal.h"
-#include "pnconnect.h"
+#include <Windows.h>
+#include <winternl.h>
+#include "ntapi.h"
 #include "Helpers.h"
 #include "Log.h"
+#include "pnioctls.h"
 #include <Npapi.h>
 #include <stdio.h>
 
-int
-WINAPI
-main(void)
+void WINAPI EnsureRedirectorStarted(void)
 {
+    SC_HANDLE hSCManager, hService;
     NTSTATUS Status;
-    HANDLE hpnDevice = NULL;
+    HANDLE hpnDevice;
+
+    hSCManager = OpenSCManagerW(NULL, NULL, SC_MANAGER_CONNECT);
+    if (!hSCManager) return;
+
+    hService = OpenServiceW(hSCManager, L"P9Rdr", SC_MANAGER_QUERY_LOCK_STATUS);
+    if (!hService) return;
+
+    StartServiceW(hService, 0, NULL);
 
     Status = OpenDevice(&hpnDevice);
-    LogStatus(Status, L"OpenDevice");
+    LogStatus(Status, L"OpenRedirector");
 
     Status = DeviceIoControlNoThrow(hpnDevice, IOCTL_PNRDR_ENSURE_REDIRECTOR_STARTED);
     LogStatus(Status, L"EnsureRedirectorStarted");
-    if (Status)
-    {
-        Status = DeviceIoControlNoThrow(hpnDevice, IOCTL_PNRDR_START_MINI_REDIRECTOR);
-        LogStatus(Status, L"StartRedirector");
-    }
 
+    Status = DeviceIoControlNoThrow(hpnDevice, IOCTL_PNRDR_START_MINI_REDIRECTOR);
+    LogStatus(Status, L"StartRedirector");
+
+    // Cleanup
+    if (hpnDevice)
+        NtClose(hpnDevice);
+    CloseServiceHandle(hService);
+    CloseServiceHandle(hSCManager);
+}
+
+void WINAPI ListConnections(void)
+{
     ULONG res = 0;
     HANDLE hEnum = NULL;
     NETRESOURCEW NetResource;
@@ -44,15 +60,11 @@ main(void)
     ULONG Count = INFINITE, BufferSize = 0;
     LPNETRESOURCEW Buffer = NULL;
     HANDLE HeapHandle = GetProcessHeap();
-    Buffer = RtlAllocateHeap(HeapHandle, HEAP_ZERO_MEMORY, sizeof (char));
 
-    res = NPEnumResource(hEnum, &Count, Buffer, &BufferSize);
+    res = NPEnumResource(hEnum, &Count, NULL, &BufferSize);
     if (res == WN_MORE_DATA)
     {
-        PVOID Temp = NULL;
-        Temp = RtlReAllocateHeap(HeapHandle, HEAP_ZERO_MEMORY, Buffer, BufferSize);
-        Buffer = Temp;
-        Temp = NULL;
+        Buffer = RtlAllocateHeap(HeapHandle, HEAP_ZERO_MEMORY, BufferSize);
 
         wprintf(L"\n");
         while (TRUE)
@@ -156,7 +168,5 @@ main(void)
         RtlFreeHeap(HeapHandle, 0, Buffer);
     if (hEnum)
         NPCloseEnum(hEnum);
-    if(hpnDevice)
-        NtClose(hpnDevice);
     CoUninitialize();
 }
