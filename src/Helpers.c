@@ -4,6 +4,37 @@
 
 NTSTATUS
 NTAPI
+OpenConnection(PHANDLE FileHandle, PWSTR TargetPath)
+{
+    NTSTATUS Status;
+    IO_STATUS_BLOCK IoStatusBlock;
+    UNICODE_STRING ObjectName;
+    OBJECT_ATTRIBUTES ObjectAttributes;
+
+    RtlZeroMemory(&ObjectName, sizeof ObjectName);
+    RtlInitUnicodeString(&ObjectName, TargetPath);
+
+    RtlZeroMemory(&ObjectAttributes, sizeof ObjectAttributes);
+    ObjectAttributes.Length = sizeof ObjectAttributes;
+    ObjectAttributes.ObjectName = &ObjectName;
+    ObjectAttributes.Attributes = OBJ_CASE_INSENSITIVE;
+
+    Status = NtCreateFile(FileHandle,
+                          SYNCHRONIZE,
+                          &ObjectAttributes,
+                          &IoStatusBlock,
+                          NULL,
+                          FILE_ATTRIBUTE_NORMAL,
+                          FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                          FILE_OPEN,
+                          FILE_SYNCHRONOUS_IO_NONALERT | FILE_CREATE_TREE_CONNECTION,
+                          NULL,
+                          0);
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 OpenDevice(PHANDLE DeviceHandle)
 {
     NTSTATUS Status;
@@ -20,14 +51,14 @@ OpenDevice(PHANDLE DeviceHandle)
     ObjectAttributes.ObjectName = &ObjectName;
 
     Status = NtCreateFile(DeviceHandle,
-                          GENERIC_READ,
+                          SYNCHRONIZE,
                           &ObjectAttributes,
                           &IoStatusBlock,
                           NULL,
-                          0,
+                          FILE_ATTRIBUTE_NORMAL,
                           FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                          CREATE_NEW,
-                          0,
+                          FILE_OPEN,
+                          FILE_SYNCHRONOUS_IO_NONALERT,
                           NULL,
                           0);
     return Status;
@@ -35,8 +66,7 @@ OpenDevice(PHANDLE DeviceHandle)
 
 NTSTATUS
 NTAPI
-DeviceIoControlNoThrow(HANDLE DeviceHandle,
-                       ULONG IoControlCode)
+DeviceIoControlNoThrow(HANDLE DeviceHandle, ULONG IoControlCode)
 {
     NTSTATUS Status;
     HANDLE hEvent = NULL;

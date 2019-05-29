@@ -3,11 +3,14 @@
 
 NTSTATUS
 NTAPI
+OpenConnection(PHANDLE FileHandle, PWSTR TargetPath);
+
+NTSTATUS
+NTAPI
 OpenDevice(PHANDLE DeviceHandle);
 
 NTSTATUS
 NTAPI
-DeviceIoControlNoThrow(HANDLE DeviceHandle,
-                       ULONG IoControlCode);
+DeviceIoControlNoThrow(HANDLE DeviceHandle, ULONG IoControlCode);
 
 #endif // HELPERS_H

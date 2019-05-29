@@ -37,7 +37,7 @@
       <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>advapi32.lib;ntdll.lib;ole32.lib;$(SolutionDir)lib\p9np.lib</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;ntdll.lib;ole32.lib;shell32.lib;$(SolutionDir)lib\p9np.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -45,11 +45,13 @@
     <ClCompile Include="Log.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="pnconnect.c" />
+    <ClCompile Include="pndisconnect.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="pnconnect.h" />
+    <ClInclude Include="pndisconnect.h" />
     <ClInclude Include="pnioctls.h" />
     <ClInclude Include="ntapi.h" />
   </ItemGroup>
