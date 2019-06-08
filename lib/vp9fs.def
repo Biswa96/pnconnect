@@ -1,0 +1,5 @@
+LIBRARY "vp9fs.dll"
+EXPORTS
+CreatePlan9FileSystem
+DllCanUnloadNow
+DllGetClassObject
